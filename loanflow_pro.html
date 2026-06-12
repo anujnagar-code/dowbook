@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LoanFlow Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f6fa;--surface:#fff;--surface2:#f1f3f9;--surface3:#e8eaf2;
+  --border:#e2e8f0;--border2:#d0d7e8;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --accent:#2563eb;--accent2:#1d4ed8;--accent-light:#eff6ff;--accent-muted:#bfdbfe;
+  --success:#16a34a;--success-bg:#f0fdf4;--success-border:#bbf7d0;
+  --warning:#b45309;--warning-bg:#fffbeb;--warning-border:#fde68a;
+  --danger:#dc2626;--danger-bg:#fef2f2;--danger-border:#fecaca;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-border:#ddd6fe;
+  --teal:#0d9488;--teal-bg:#f0fdfa;
+  --sidebar:252px;--header:58px;
+  --radius:10px;--radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+[data-theme=dark]{
+  --bg:#0c0e1a;--surface:#131929;--surface2:#1a2236;--surface3:#222d44;
+  --border:#1e2d45;--border2:#243452;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4a5a7a;
+  --accent:#3b82f6;--accent2:#2563eb;--accent-light:#0f1f3d;--accent-muted:#1e3a6e;
+  --success-bg:#052e16;--success-border:#166534;
+  --warning-bg:#1c1007;--warning-border:#92400e;
+  --danger-bg:#1c0505;--danger-border:#991b1b;
+  --purple-bg:#150e2e;--purple-border:#4c1d95;
+  --teal-bg:#042f2e;
+  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 12px rgba(0,0,0,.4);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.5;display:flex;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
+/* ── Sidebar ── */
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar);height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.logo{padding:18px 20px 14px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border)}
+.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;flex-shrink:0}
+.logo-name{font-size:15px;font-weight:700;letter-spacing:-.3px;color:var(--text)}
+.logo-tag{font-size:10px;color:var(--text3);margin-top:1px}
+nav{flex:1;overflow-y:auto;padding:10px 10px 0;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nav-section{padding:10px 10px 4px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;border-radius:8px;margin-bottom:1px;color:var(--text2);transition:all .15s;font-size:13px;font-weight:450;position:relative}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:550}
+.nav-item.active::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--accent);border-radius:2px}
+.nav-item i{font-size:17px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;padding:1px 7px;border-radius:20px;font-weight:600}
+.nav-badge-warn{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.user-card{margin:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:.15s}
+.user-card:hover{background:var(--surface2)}
+/* ── Header ── */
+#header{position:fixed;top:0;left:var(--sidebar);right:0;height:var(--header);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;z-index:100;transition:left .25s}
+.page-title{font-size:15px;font-weight:650;flex:1;color:var(--text)}
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:7px 13px;width:280px;transition:.2s}
+.search-wrap:focus-within{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 3px var(--accent-light)}
+.search-wrap input{border:none;background:transparent;outline:none;color:var(--text);font-size:13px;width:100%}
+.search-wrap i{color:var(--text3);font-size:16px;flex-shrink:0}
+.hbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:.15s;white-space:nowrap}
+.hbtn:hover{background:var(--surface2);border-color:var(--border2)}
+.hbtn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.hbtn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;cursor:pointer}
+.notif-dot{position:relative}
+.notif-dot::after{content:'';position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--danger);border-radius:50%;border:2px solid var(--surface)}
+/* ── Main ── */
+#main{margin-left:var(--sidebar);margin-top:var(--header);padding:24px;transition:margin .25s;min-height:calc(100vh - var(--header))}
+/* ── Pages ── */
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow)}
+.card-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+/* ── Grids ── */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:1200px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-260px)}
+  #sidebar.open{transform:none}
+  #main{margin-left:0!important;padding:16px}
+  #header{left:0!important}
+  .g4,.g3,.g2{grid-template-columns:1fr}
+  .search-wrap{display:none}
+  #mobile-nav{display:block}
+  #main{padding-bottom:76px}
+}
+/* ── KPI ── */
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;gap:2px;transition:.2s;cursor:default;box-shadow:var(--shadow)}
+.kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.kpi-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.kpi-trend{font-size:11px;font-weight:600;display:flex;align-items:center;gap:2px;padding:2px 8px;border-radius:20px}
+.trend-up{background:var(--success-bg);color:var(--success)}
+.trend-dn{background:var(--danger-bg);color:var(--danger)}
+.trend-neu{background:var(--surface2);color:var(--text2)}
+.kpi-val{font-size:28px;font-weight:750;line-height:1;letter-spacing:-.5px}
+.kpi-lbl{font-size:12px;color:var(--text2);margin-top:3px}
+/* ── Table ── */
+.tbl-wrap{border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:11px 14px;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.6px;background:var(--surface2)}
+td{padding:13px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border:none}
+tbody tr{transition:background .1s}
+tbody tr:hover td{background:var(--surface2)}
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-blue{background:var(--accent-light);color:var(--accent);border:1px solid var(--accent-muted)}
+.b-green{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.b-amber{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.b-red{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.b-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}
+.b-teal{background:var(--teal-bg);color:var(--teal)}
+.b-gray{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+/* ── Forms ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2)}
+.form-input,.form-select,.form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;outline:none;transition:border .15s,box-shadow .15s;font-family:inherit}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.form-textarea{resize:vertical;min-height:72px}
+/* ── Modal ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.overlay.open{display:flex;animation:fadeIn .15s}
+.modal{background:var(--surface);border-radius:16px;width:680px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid var(--border)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;border-radius:16px 16px 0 0}
+.modal-title{font-size:16px;font-weight:700}
+.modal-body{padding:20px 24px 24px}
+/* ── Section header ── */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sec-title{font-size:17px;font-weight:700;color:var(--text)}
+.sec-sub{font-size:12px;color:var(--text2);margin-top:2px}
+/* ── Chips ── */
+.chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s;white-space:nowrap}
+.chip:hover,.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* ── Progress ── */
+.prog{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.prog-bar{height:100%;border-radius:3px;transition:width .6s ease}
+/* ── Timeline / Workflow ── */
+.wf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.wf-card{border:1px solid var(--border);border-radius:10px;padding:13px 14px;cursor:pointer;transition:all .15s;position:relative;background:var(--surface)}
+.wf-card:hover{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.wf-card.done{border-color:var(--success-border);background:var(--success-bg)}
+.wf-card.active-stage{border-color:var(--accent);background:var(--accent-light);box-shadow:0 0 0 2px var(--accent-muted)}
+.wf-card.delayed{border-color:var(--danger-border);background:var(--danger-bg)}
+.wf-num{font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px}
+.wf-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.3}
+.wf-badge{position:absolute;top:10px;right:10px}
+/* ── Kanban ── */
+.kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px}
+.kboard{background:var(--surface2);border-radius:12px;padding:12px;min-width:210px;flex-shrink:0;border:1px solid var(--border)}
+.kb-head{font-size:12px;font-weight:650;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;color:var(--text2)}
+.kcard{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.kcard:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.kcard-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.kcard-meta{font-size:11px;color:var(--text3)}
+/* ── AI Panel ── */
+.ai-panel{background:linear-gradient(135deg,var(--accent-light),var(--purple-bg));border:1px solid var(--accent-muted);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:20px}
+.ai-output{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:12px;font-size:13px;line-height:1.7;white-space:pre-wrap;min-height:60px;color:var(--text)}
+.ai-typing::after{content:'▋';animation:blink .7s step-end infinite;color:var(--accent)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+/* ── Stage detail drawer ── */
+.drawer{position:fixed;right:0;top:0;height:100vh;width:360px;background:var(--surface);border-left:1px solid var(--border);z-index:300;transform:translateX(100%);transition:.3s cubic-bezier(.4,0,.2,1);padding:0;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,.1)}
+.drawer.open{transform:none}
+.drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px}
+/* ── Mobile nav ── */
+#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:200;padding:6px 0 10px;safe-area-inset-bottom:env(safe-area-inset-bottom)}
+.mob-items{display:flex;justify-content:space-around}
+.mob-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;padding:5px 10px;border-radius:8px;transition:.15s;min-width:52px}
+.mob-item.active{color:var(--accent)}
+.mob-item i{font-size:22px}
+/* ── Utility ── */
+.flex{display:flex}.flex-c{align-items:center}.gap6{gap:6px}.gap10{gap:10px}.gap12{gap:12px}.gap16{gap:16px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt20{margin-top:20px}.mt24{margin-top:24px}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
+.fw6{font-weight:600}.fw7{font-weight:700}.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}.fs24{font-size:24px}
+.c-muted{color:var(--text2)}.c-hint{color:var(--text3)}.c-accent{color:var(--accent)}.c-success{color:var(--success)}.c-danger{color:var(--danger)}.c-warn{color:var(--warning)}.c-purple{color:var(--purple)}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+</style>
+</head>
+<body data-theme="light">
+<h2 class="sr-only">LoanFlow Pro — Property Loan CRM & File Tracking System</h2>
+
+<!-- ══ SIDEBAR ══ -->
+<aside id="sidebar" role="navigation" aria-label="Main navigation">
+  <div class="logo">
+    <div class="logo-mark"><i class="ti ti-building-bank" aria-hidden="true"></i></div>
+    <div><div class="logo-name">LoanFlow Pro</div><div class="logo-tag">Property Loan CRM</div></div>
+  </div>
+  <nav>
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="go('dashboard')"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard</div>
+    <div class="nav-item" onclick="go('leads')"><i class="ti ti-users" aria-hidden="true"></i>Leads<span class="nav-badge">12</span></div>
+    <div class="nav-item" onclick="go('files')"><i class="ti ti-folder-open" aria-hidden="true"></i>Loan Files</div>
+    <div class="nav-item" onclick="go('workflow')"><i class="ti ti-timeline" aria-hidden="true"></i>Workflow</div>
+    <div class="nav-section">Operations</div>
+    <div class="nav-item" onclick="go('tasks')"><i class="ti ti-checkbox" aria-hidden="true"></i>Tasks<span class="nav-badge">5</span></div>
+    <div class="nav-item" onclick="go('bankers')"><i class="ti ti-building" aria-hidden="true"></i>Bankers</div>
+    <div class="nav-item" onclick="go('employees')"><i class="ti ti-users-group" aria-hidden="true"></i>Employees</div>
+    <div class="nav-item" onclick="go('documents')"><i class="ti ti-file-text" aria-hidden="true"></i>Documents</div>
+    <div class="nav-section">Intelligence</div>
+    <div class="nav-item" onclick="go('ai')"><i class="ti ti-robot" aria-hidden="true"></i>AI Assistant<span class="nav-badge" style="background:var(--purple)">NEW</span></div>
+    <div class="nav-item" onclick="go('reports')"><i class="ti ti-chart-bar" aria-hidden="true"></i>Reports</div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="go('settings')"><i class="ti ti-settings" aria-hidden="true"></i>Settings</div>
+  </nav>
+  <div class="user-card">
+    <div class="avatar" style="background:var(--accent);color:#fff">AD</div>
+    <div style="flex:1;min-width:0"><div class="fs13 fw6" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Admin User</div><div class="fs11 c-hint">Super Admin</div></div>
+    <i class="ti ti-dots-vertical c-hint" style="font-size:16px" aria-hidden="true"></i>
+  </div>
+</aside>
+
+<!-- ══ HEADER ══ -->
+<header id="header" role="banner">
+  <button class="hbtn" id="menu-btn" onclick="toggleSidebar()" style="display:none;padding:7px 10px" aria-label="Toggle navigation"><i class="ti ti-menu-2" aria-hidden="true"></i></button>
+  <div class="page-title" id="page-title">Dashboard</div>
+  <div class="search-wrap" role="search">
+    <i class="ti ti-search" aria-hidden="true"></i>
+    <input type="text" placeholder="Search files, leads, mobile, banker…" aria-label="Search" id="globalSearch" oninput="doSearch(this.value)">
+    <i class="ti ti-command c-hint" style="font-size:14px" aria-hidden="true"></i>
+  </div>
+  <button class="hbtn notif-dot" onclick="openOverlay('notifOverlay')" aria-label="Notifications"><i class="ti ti-bell" aria-hidden="true"></i></button>
+  <button class="hbtn" onclick="toggleTheme()" id="theme-btn" aria-label="Toggle dark mode"><i class="ti ti-moon" id="theme-icon" aria-hidden="true"></i></button>
+  <button class="hbtn hbtn-primary" onclick="openOverlay('leadOverlay')" aria-label="Add new lead"><i class="ti ti-plus" aria-hidden="true"></i><span class="hide-sm">New Lead</span></button>
+  <div class="avatar" style="background:var(--accent);color:#fff" title="Admin User">AD</div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<main id="main" role="main">
+
+<!-- ════ DASHBOARD ════ -->
+<section id="page-dashboard" class="page active">
+  <div class="mb20">
+    <div style="font-size:22px;font-weight:750;letter-spacing:-.4px">Good morning, Admin 👋</div>
+    <div class="c-muted fs12 mt8">Sunday, 7 June 2025 · Here's your portfolio at a glance</div>
+  </div>
+  <!-- KPIs row 1 -->
+  <div class="g4 mb16">
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent)"><i class="ti ti-users" aria-hidden="true"></i></div><span class="kpi-trend trend-up"><i class="ti ti-trending-up"></i>+18</span></div><div class="kpi-val">284</div><div class="kpi-lbl">Total Leads</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--warning-bg);color:var(--warning)"><i class="ti ti-folder-open" aria-hidden="true"></i></div><span class="kpi-trend trend-up"><i class="ti ti-trending-up"></i>+6</span></div><div class="kpi-val">97</div><div class="kpi-lbl">Active Loan Files</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--success-bg);color:var(--success)"><i class="ti ti-circle-check" aria-hidden="true"></i></div><span class="kpi-trend trend-up"><i class="ti ti-trending-up"></i>₹18.4Cr</span></div><div class="kpi-val">43</div><div class="kpi-lbl">Sanctioned Cases</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-cash" aria-hidden="true"></i></div><span class="kpi-trend trend-up"><i class="ti ti-trending-up"></i>₹11.2Cr</span></div><div class="kpi-val">29</div><div class="kpi-lbl">Disbursed Cases</div></div>
+  </div>
+  <!-- KPIs row 2 -->
+  <div class="g4 mb20">
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--danger-bg);color:var(--danger)"><i class="ti ti-clock-hour-4" aria-hidden="true"></i></div><span class="kpi-trend trend-dn"><i class="ti ti-alert-circle"></i>3 overdue</span></div><div class="kpi-val">14</div><div class="kpi-lbl">Pending Bank Approval</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-gavel" aria-hidden="true"></i></div><span class="kpi-trend trend-neu">Avg 8d</span></div><div class="kpi-val">9</div><div class="kpi-lbl">Legal Pending</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--danger-bg);color:var(--danger)"><i class="ti ti-tools" aria-hidden="true"></i></div><span class="kpi-trend trend-dn">2 high priority</span></div><div class="kpi-val">6</div><div class="kpi-lbl">Technical Pending</div></div>
+    <div class="kpi-card"><div class="kpi-top"><div class="kpi-icon" style="background:var(--teal-bg);color:var(--teal)"><i class="ti ti-calendar-event" aria-hidden="true"></i></div><span class="kpi-trend trend-neu">8 done</span></div><div class="kpi-val">22</div><div class="kpi-lbl">Today's Follow-ups</div></div>
+  </div>
+  <!-- Charts row -->
+  <div class="g2 mb20">
+    <div class="card">
+      <div class="sec-hd"><div><div class="sec-title fs13 fw7">Monthly Disbursals</div><div class="sec-sub">₹ Crores · FY 2024-25</div></div><select class="form-select" style="width:auto;font-size:12px;padding:5px 10px"><option>This Year</option><option>Last Year</option></select></div>
+      <div style="position:relative;height:210px"><canvas id="dashChart1" role="img" aria-label="Monthly disbursal bar chart for FY 2024-25">Monthly disbursal data in crores.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="sec-hd"><div><div class="sec-title fs13 fw7">Pipeline Funnel</div><div class="sec-sub">Lead → Disbursal conversion</div></div></div>
+      <div style="position:relative;height:210px"><canvas id="dashChart2" role="img" aria-label="Pipeline funnel horizontal bar chart">Leads 284 → Disbursed 29 funnel.</canvas></div>
+    </div>
+  </div>
+  <!-- Bottom row -->
+  <div class="g2">
+    <div class="card">
+      <div class="sec-hd"><div class="sec-title fs13 fw7">Today's Follow-ups</div><button class="hbtn" style="font-size:12px">View All <i class="ti ti-arrow-right" aria-hidden="true"></i></button></div>
+      <table><thead><tr><th>Customer</th><th>Type</th><th>Priority</th><th>Time</th></tr></thead><tbody>
+        <tr><td><div class="fw6">Rajesh Sharma</div><div class="fs11 c-hint">LF-2024-089</div></td><td><span class="badge b-amber">Doc Pending</span></td><td><span class="badge b-red">Urgent</span></td><td class="fw6">10:00 AM</td></tr>
+        <tr><td><div class="fw6">Priya Mehta</div><div class="fs11 c-hint">LF-2024-091</div></td><td><span class="badge b-blue">Bank Query</span></td><td><span class="badge b-amber">High</span></td><td class="fw6">11:30 AM</td></tr>
+        <tr><td><div class="fw6">Anil Verma</div><div class="fs11 c-hint">LF-2024-078</div></td><td><span class="badge b-purple">Legal</span></td><td><span class="badge b-gray">Medium</span></td><td class="fw6">2:00 PM</td></tr>
+        <tr><td><div class="fw6">Sunita Rao</div><div class="fs11 c-hint">LF-2024-095</div></td><td><span class="badge b-green">Sanction FU</span></td><td><span class="badge b-amber">High</span></td><td class="fw6">3:30 PM</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="sec-hd"><div class="sec-title fs13 fw7">Employee Performance</div><button class="hbtn" style="font-size:12px">This Month</button></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><span class="fs13">Rahul Singh <span class="fs11 c-hint">Loan Mgr</span></span><span class="fw7 c-success">92%</span></div><div class="prog"><div class="prog-bar" style="width:92%;background:var(--success)"></div></div></div>
+        <div><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><span class="fs13">Neha Gupta <span class="fs11 c-hint">Sales Exec</span></span><span class="fw7 c-accent">88%</span></div><div class="prog"><div class="prog-bar" style="width:88%;background:var(--accent)"></div></div></div>
+        <div><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><span class="fs13">Kavita Patel <span class="fs11 c-hint">Sales Exec</span></span><span class="fw7" style="color:var(--teal)">78%</span></div><div class="prog"><div class="prog-bar" style="width:78%;background:var(--teal)"></div></div></div>
+        <div><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><span class="fs13">Amit Kumar <span class="fs11 c-hint">Backend</span></span><span class="fw7 c-warn">65%</span></div><div class="prog"><div class="prog-bar" style="width:65%;background:var(--warning)"></div></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="flex gap16 fs12 c-muted"><span><i class="ti ti-coin-rupee c-success"></i> Commission this month: <strong class="c-success">₹1,42,500</strong></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ LEADS ════ -->
+<section id="page-leads" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Lead Management</div><div class="sec-sub">Track all property loan enquiries from first contact to conversion</div></div>
+    <div class="flex gap10"><button class="hbtn"><i class="ti ti-filter"></i>Filter</button><button class="hbtn" style="font-size:12px"><i class="ti ti-download"></i>Export</button><button class="hbtn hbtn-primary" onclick="openOverlay('leadOverlay')"><i class="ti ti-plus"></i>Add Lead</button></div>
+  </div>
+  <div class="chip-row" id="lead-chips">
+    <div class="chip active" onclick="chipSel(this,'lead-chips')">All (284)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">New Lead (42)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">Contacted (58)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">Meeting Fixed (31)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">Docs Pending (24)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">Interested (67)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">Not Interested (15)</div>
+    <div class="chip" onclick="chipSel(this,'lead-chips')">Converted (47)</div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Lead ID</th><th>Customer</th><th>Loan Type</th><th>Amount</th><th>Source</th><th>Assigned To</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <tbody id="leads-tbody">
+        <tr><td class="fs11 c-hint">LD-001</td><td><div class="fw6">Rajesh Sharma</div><div class="fs11 c-hint">9876543210 · Delhi</div></td><td>LAP</td><td class="fw6">₹45L</td><td><span class="badge b-blue">Online</span></td><td>Rahul Singh</td><td><span class="badge b-amber">Meeting Fixed</span></td><td class="fs11 c-hint">01 Jun</td><td><button class="hbtn" style="padding:4px 10px;font-size:12px" onclick="go('workflow')"><i class="ti ti-eye"></i></button></td></tr>
+        <tr><td class="fs11 c-hint">LD-002</td><td><div class="fw6">Priya Mehta</div><div class="fs11 c-hint">9812345678 · Noida</div></td><td>Home Loan</td><td class="fw6">₹72L</td><td><span class="badge b-green">Referral</span></td><td>Kavita Patel</td><td><span class="badge b-purple">Interested</span></td><td class="fs11 c-hint">28 May</td><td><button class="hbtn" style="padding:4px 10px;font-size:12px"><i class="ti ti-eye"></i></button></td></tr>
+        <tr><td class="fs11 c-hint">LD-003</td><td><div class="fw6">Anil Verma</div><div class="fs11 c-hint">9934567890 · Gurgaon</div></td><td>LAP</td><td class="fw6">₹1.2Cr</td><td><span class="badge b-amber">Walk-in</span></td><td>Amit Kumar</td><td><span class="badge b-green">Converted</span></td><td class="fs11 c-hint">15 May</td><td><button class="hbtn" style="padding:4px 10px;font-size:12px"><i class="ti ti-eye"></i></button></td></tr>
+        <tr><td class="fs11 c-hint">LD-004</td><td><div class="fw6">Sunita Rao</div><div class="fs11 c-hint">9765432109 · Faridabad</div></td><td>Commercial</td><td class="fw6">₹2Cr</td><td><span class="badge b-blue">Online</span></td><td>Neha Gupta</td><td><span class="badge b-blue">Contacted</span></td><td class="fs11 c-hint">03 Jun</td><td><button class="hbtn" style="padding:4px 10px;font-size:12px"><i class="ti ti-eye"></i></button></td></tr>
+        <tr><td class="fs11 c-hint">LD-005</td><td><div class="fw6">Vikram Singh</div><div class="fs11 c-hint">9654321098 · Dwarka</div></td><td>LAP</td><td class="fw6">₹85L</td><td><span class="badge b-green">Referral</span></td><td>Rahul Singh</td><td><span class="badge b-gray">New Lead</span></td><td class="fs11 c-hint">06 Jun</td><td><button class="hbtn" style="padding:4px 10px;font-size:12px"><i class="ti ti-eye"></i></button></td></tr>
+        <tr><td class="fs11 c-hint">LD-006</td><td><div class="fw6">Meena Joshi</div><div class="fs11 c-hint">9543210987 · Rohini</div></td><td>Home Loan</td><td class="fw6">₹55L</td><td><span class="badge b-amber">IVR</span></td><td>Kavita Patel</td><td><span class="badge b-red">Not Interested</span></td><td class="fs11 c-hint">02 Jun</td><td><button class="hbtn" style="padding:4px 10px;font-size:12px"><i class="ti ti-eye"></i></button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════ LOAN FILES ════ -->
+<section id="page-files" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Loan Files</div><div class="sec-sub">All active and closed loan cases with unique File IDs</div></div>
+    <button class="hbtn hbtn-primary" onclick="openOverlay('fileOverlay')"><i class="ti ti-plus"></i>Create File</button>
+  </div>
+  <div class="g4 mb20">
+    <div class="kpi-card"><div class="kpi-val c-accent">97</div><div class="kpi-lbl">Total Files</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:var(--teal)">64</div><div class="kpi-lbl">In Progress</div></div>
+    <div class="kpi-card"><div class="kpi-val c-success">43</div><div class="kpi-lbl">Sanctioned</div></div>
+    <div class="kpi-card"><div class="kpi-val c-purple">29</div><div class="kpi-lbl">Disbursed</div></div>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>File ID</th><th>Customer</th><th>Bank</th><th>Loan Amount</th><th>Stage</th><th>Days Active</th><th>Manager</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><strong>LF-2024-089</strong></td><td><div class="fw6">Rajesh Sharma</div><div class="fs11 c-hint">LAP · Rohini, Delhi</div></td><td>SBI</td><td class="fw6">₹45L</td><td><span class="badge b-blue">Stage 8 — Tech Approved</span></td><td><span class="c-warn fw6">47d</span></td><td>Rahul Singh</td><td class="flex gap6"><button class="hbtn" onclick="go('workflow')" style="padding:5px 10px;font-size:12px"><i class="ti ti-timeline"></i>Track</button><button class="hbtn" style="padding:5px 10px;font-size:12px"><i class="ti ti-edit"></i></button></td></tr>
+        <tr><td><strong>LF-2024-091</strong></td><td><div class="fw6">Priya Mehta</div><div class="fs11 c-hint">Home · Sector 62, Noida</div></td><td>HDFC</td><td class="fw6">₹72L</td><td><span class="badge b-amber">Stage 15 — Bank Queries</span></td><td><span class="c-danger fw6">83d</span></td><td>Kavita Patel</td><td class="flex gap6"><button class="hbtn" onclick="go('workflow')" style="padding:5px 10px;font-size:12px"><i class="ti ti-timeline"></i>Track</button><button class="hbtn" style="padding:5px 10px;font-size:12px"><i class="ti ti-edit"></i></button></td></tr>
+        <tr><td><strong>LF-2024-078</strong></td><td><div class="fw6">Anil Verma</div><div class="fs11 c-hint">LAP · DLF Phase 2, Gurgaon</div></td><td>ICICI</td><td class="fw6">₹1.2Cr</td><td><span class="badge b-green">Stage 22 — Disbursed ✓</span></td><td>102d</td><td>Amit Kumar</td><td class="flex gap6"><button class="hbtn" onclick="go('workflow')" style="padding:5px 10px;font-size:12px"><i class="ti ti-timeline"></i>Track</button><button class="hbtn" style="padding:5px 10px;font-size:12px"><i class="ti ti-edit"></i></button></td></tr>
+        <tr><td><strong>LF-2024-095</strong></td><td><div class="fw6">Sunita Rao</div><div class="fs11 c-hint">Comm · Sector 14, Faridabad</div></td><td>Axis</td><td class="fw6">₹2Cr</td><td><span class="badge b-purple">Stage 18 — Sanctioned</span></td><td>91d</td><td>Neha Gupta</td><td class="flex gap6"><button class="hbtn" onclick="go('workflow')" style="padding:5px 10px;font-size:12px"><i class="ti ti-timeline"></i>Track</button><button class="hbtn" style="padding:5px 10px;font-size:12px"><i class="ti ti-edit"></i></button></td></tr>
+        <tr><td><strong>LF-2024-101</strong></td><td><div class="fw6">Vikram Singh</div><div class="fs11 c-hint">LAP · Dwarka Sector 7</div></td><td>PNB</td><td class="fw6">₹85L</td><td><span class="badge b-teal">Stage 4 — Bank Login</span></td><td>12d</td><td>Rahul Singh</td><td class="flex gap6"><button class="hbtn" onclick="go('workflow')" style="padding:5px 10px;font-size:12px"><i class="ti ti-timeline"></i>Track</button><button class="hbtn" style="padding:5px 10px;font-size:12px"><i class="ti ti-edit"></i></button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════ WORKFLOW ════ -->
+<section id="page-workflow" class="page">
+  <div class="sec-hd">
+    <div>
+      <div class="sec-title" style="font-size:18px">Loan Workflow Tracker</div>
+      <div class="sec-sub">LF-2024-089 · Rajesh Sharma · SBI · ₹45 Lakhs LAP · <span class="c-warn">47 Days Active</span></div>
+    </div>
+    <div class="flex gap10">
+      <button class="hbtn" id="wf-toggle" onclick="wfToggle()"><i class="ti ti-columns"></i>Kanban View</button>
+      <button class="hbtn hbtn-primary"><i class="ti ti-edit"></i>Update Stage</button>
+    </div>
+  </div>
+  <div class="g2 mb20">
+    <div class="card-sm flex gap16">
+      <div class="flex flex-c gap6 fs12 c-muted"><i class="ti ti-calendar"></i>Started: 12 Apr 2025</div>
+      <div class="flex flex-c gap6 fs12 c-muted"><i class="ti ti-clock"></i>47 Days</div>
+      <div class="flex flex-c gap6 fs12 c-danger fw6"><i class="ti ti-alert-triangle"></i>2 Delays</div>
+    </div>
+    <div class="card-sm">
+      <div class="flex flex-c" style="justify-content:space-between;margin-bottom:6px"><span class="fs12 c-muted">Overall Progress</span><span class="fs12 fw7 c-accent">Stage 8 / 24</span></div>
+      <div class="prog" style="height:8px"><div class="prog-bar" style="width:33%;background:var(--accent)"></div></div>
+      <div class="fs11 c-hint mt8">Next: Legal File Sent (Stage 9)</div>
+    </div>
+  </div>
+  <!-- Legend -->
+  <div class="flex gap12 mb16 flex-wrap fs11 c-muted">
+    <span class="flex flex-c gap6"><span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block"></span>Completed</span>
+    <span class="flex flex-c gap6"><span style="width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block"></span>Active</span>
+    <span class="flex flex-c gap6"><span style="width:10px;height:10px;border-radius:50%;background:var(--border2);display:inline-block"></span>Pending</span>
+    <span class="flex flex-c gap6"><span style="width:10px;height:10px;border-radius:50%;background:var(--danger);display:inline-block"></span>Delayed</span>
+  </div>
+  <div id="wf-timeline">
+    <div class="card" style="padding:16px"><div class="wf-grid" id="wf-grid"></div></div>
+  </div>
+  <div id="wf-kanban" style="display:none">
+    <div class="kanban" id="kb-board"></div>
+  </div>
+</section>
+
+<!-- ════ TASKS ════ -->
+<section id="page-tasks" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Task Management</div></div>
+    <button class="hbtn hbtn-primary" onclick="openOverlay('taskOverlay')"><i class="ti ti-plus"></i>Add Task</button>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="fs12 fw6 c-muted mb12" style="text-transform:uppercase;letter-spacing:.6px">Pending Tasks (5)</div>
+      <div style="display:flex;flex-direction:column;gap:10px" id="pending-tasks">
+        <div class="card-sm"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:7px"><div class="fs13 fw6">Follow up SBI on LF-089 valuation</div><span class="badge b-red">Urgent</span></div><div class="flex gap12 fs11 c-hint flex-wrap"><span><i class="ti ti-calendar"></i> Today</span><span><i class="ti ti-user"></i> Rahul Singh</span><span><i class="ti ti-folder"></i> LF-2024-089</span></div></div>
+        <div class="card-sm"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:7px"><div class="fs13 fw6">Collect bank statements from Priya Mehta</div><span class="badge b-amber">High</span></div><div class="flex gap12 fs11 c-hint flex-wrap"><span><i class="ti ti-calendar"></i> Tomorrow</span><span><i class="ti ti-user"></i> Kavita Patel</span></div></div>
+        <div class="card-sm"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:7px"><div class="fs13 fw6">Submit legal docs to advocate</div><span class="badge b-amber">High</span></div><div class="flex gap12 fs11 c-hint flex-wrap"><span><i class="ti ti-calendar"></i> 10 Jun</span><span><i class="ti ti-user"></i> Amit Kumar</span></div></div>
+        <div class="card-sm"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:7px"><div class="fs13 fw6">Prepare sanction letter for Sunita Rao</div><span class="badge b-gray">Medium</span></div><div class="flex gap12 fs11 c-hint flex-wrap"><span><i class="ti ti-calendar"></i> 12 Jun</span><span><i class="ti ti-user"></i> Neha Gupta</span></div></div>
+        <div class="card-sm"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:7px"><div class="fs13 fw6">Call Vikram Singh re: ITR submission</div><span class="badge b-gray">Low</span></div><div class="flex gap12 fs11 c-hint flex-wrap"><span><i class="ti ti-calendar"></i> 14 Jun</span><span><i class="ti ti-user"></i> Kavita Patel</span></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="fs12 fw6 c-muted mb12" style="text-transform:uppercase;letter-spacing:.6px">Completed (8)</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card-sm" style="opacity:.55"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><div class="fs13 fw6" style="text-decoration:line-through">Login file in ICICI bank</div><span class="badge b-green">Done</span></div><div class="fs11 c-hint">Rahul Singh · 6 Jun</div></div>
+        <div class="card-sm" style="opacity:.55"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><div class="fs13 fw6" style="text-decoration:line-through">Upload property docs for LF-078</div><span class="badge b-green">Done</span></div><div class="fs11 c-hint">Amit Kumar · 5 Jun</div></div>
+        <div class="card-sm" style="opacity:.55"><div class="flex flex-c" style="justify-content:space-between;margin-bottom:5px"><div class="fs13 fw6" style="text-decoration:line-through">Coordinate with valuer for Gurgaon property</div><span class="badge b-green">Done</span></div><div class="fs11 c-hint">Amit Kumar · 4 Jun</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ BANKERS ════ -->
+<section id="page-bankers" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Banker Management</div><div class="sec-sub">Manage banking relationships and track approval performance</div></div>
+    <button class="hbtn hbtn-primary"><i class="ti ti-plus"></i>Add Banker</button>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="flex flex-c gap12 mb16"><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent);width:44px;height:44px;border-radius:10px;font-size:13px;font-weight:700">SBI</div><div><div class="fw6" style="font-size:15px">State Bank of India</div><div class="fs12 c-muted">Rohini Branch</div></div></div><table style="font-size:12px"><tr><td class="c-muted" style="padding:4px 0">Banker</td><td class="fw6">Mr. Deepak Mishra</td></tr><tr><td class="c-muted" style="padding:4px 0">Mobile</td><td>9811234567</td></tr><tr><td class="c-muted" style="padding:4px 0">Email</td><td>d.mishra@sbi.co.in</td></tr><tr><td class="c-muted" style="padding:4px 0">Cases</td><td class="fw6">9 Active</td></tr><tr><td class="c-muted" style="padding:4px 0">Approval</td><td><span class="c-success fw7">78%</span></td></tr></table></div>
+    <div class="card"><div class="flex flex-c gap12 mb16"><div class="kpi-icon" style="background:var(--danger-bg);color:var(--danger);width:44px;height:44px;border-radius:10px;font-size:12px;font-weight:700">HDFC</div><div><div class="fw6" style="font-size:15px">HDFC Bank</div><div class="fs12 c-muted">Noida Sector 18</div></div></div><table style="font-size:12px"><tr><td class="c-muted" style="padding:4px 0">Banker</td><td class="fw6">Ms. Ritu Sharma</td></tr><tr><td class="c-muted" style="padding:4px 0">Mobile</td><td>9823456789</td></tr><tr><td class="c-muted" style="padding:4px 0">Email</td><td>r.sharma@hdfc.com</td></tr><tr><td class="c-muted" style="padding:4px 0">Cases</td><td class="fw6">6 Active</td></tr><tr><td class="c-muted" style="padding:4px 0">Approval</td><td><span class="c-success fw7">82%</span></td></tr></table></div>
+    <div class="card"><div class="flex flex-c gap12 mb16"><div class="kpi-icon" style="background:var(--warning-bg);color:var(--warning);width:44px;height:44px;border-radius:10px;font-size:12px;font-weight:700">ICICI</div><div><div class="fw6" style="font-size:15px">ICICI Bank</div><div class="fs12 c-muted">DLF Cyber City, Gurgaon</div></div></div><table style="font-size:12px"><tr><td class="c-muted" style="padding:4px 0">Banker</td><td class="fw6">Mr. Sandeep Roy</td></tr><tr><td class="c-muted" style="padding:4px 0">Mobile</td><td>9845678901</td></tr><tr><td class="c-muted" style="padding:4px 0">Email</td><td>s.roy@icici.com</td></tr><tr><td class="c-muted" style="padding:4px 0">Cases</td><td class="fw6">11 Active</td></tr><tr><td class="c-muted" style="padding:4px 0">Approval</td><td><span class="c-warn fw7">68%</span></td></tr></table></div>
+    <div class="card"><div class="flex flex-c gap12 mb16"><div class="kpi-icon" style="background:var(--purple-bg);color:var(--purple);width:44px;height:44px;border-radius:10px;font-size:12px;font-weight:700">AXIS</div><div><div class="fw6" style="font-size:15px">Axis Bank</div><div class="fs12 c-muted">Faridabad Sector 14</div></div></div><table style="font-size:12px"><tr><td class="c-muted" style="padding:4px 0">Banker</td><td class="fw6">Ms. Pooja Aggarwal</td></tr><tr><td class="c-muted" style="padding:4px 0">Mobile</td><td>9867890123</td></tr><tr><td class="c-muted" style="padding:4px 0">Email</td><td>p.aggarwal@axis.com</td></tr><tr><td class="c-muted" style="padding:4px 0">Cases</td><td class="fw6">7 Active</td></tr><tr><td class="c-muted" style="padding:4px 0">Approval</td><td><span class="c-success fw7">75%</span></td></tr></table></div>
+    <div class="card"><div class="flex flex-c gap12 mb16"><div class="kpi-icon" style="background:var(--teal-bg);color:var(--teal);width:44px;height:44px;border-radius:10px;font-size:12px;font-weight:700">PNB</div><div><div class="fw6" style="font-size:15px">Punjab National Bank</div><div class="fs12 c-muted">Dwarka Sector 10</div></div></div><table style="font-size:12px"><tr><td class="c-muted" style="padding:4px 0">Banker</td><td class="fw6">Mr. Ramesh Yadav</td></tr><tr><td class="c-muted" style="padding:4px 0">Mobile</td><td>9834567890</td></tr><tr><td class="c-muted" style="padding:4px 0">Email</td><td>r.yadav@pnb.in</td></tr><tr><td class="c-muted" style="padding:4px 0">Cases</td><td class="fw6">4 Active</td></tr><tr><td class="c-muted" style="padding:4px 0">Approval</td><td><span class="c-warn fw7">62%</span></td></tr></table></div>
+  </div>
+</section>
+
+<!-- ════ EMPLOYEES ════ -->
+<section id="page-employees" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Employee Tracking</div></div>
+    <button class="hbtn hbtn-primary"><i class="ti ti-user-plus"></i>Add Employee</button>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Employee</th><th>Role</th><th>Files</th><th>Tasks</th><th>Attendance</th><th>Score</th><th>Commission</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><div class="flex flex-c gap10"><div class="avatar" style="background:#16a34a;color:#fff;font-size:11px">RS</div><div><div class="fw6">Rahul Singh</div><div class="fs11 c-hint">rahul@loanflow.in</div></div></div></td><td>Loan Manager</td><td>24</td><td><span class="fw6 c-success">47/52</span></td><td><span class="badge b-green">Present</span></td><td><span class="fw7 c-success">92%</span></td><td>₹48,000</td><td><span class="badge b-green">Active</span></td></tr>
+        <tr><td><div class="flex flex-c gap10"><div class="avatar" style="background:#7c3aed;color:#fff;font-size:11px">NG</div><div><div class="fw6">Neha Gupta</div><div class="fs11 c-hint">neha@loanflow.in</div></div></div></td><td>Sales Executive</td><td>21</td><td><span class="fw6 c-accent">44/50</span></td><td><span class="badge b-green">Present</span></td><td><span class="fw7 c-accent">88%</span></td><td>₹38,500</td><td><span class="badge b-green">Active</span></td></tr>
+        <tr><td><div class="flex flex-c gap10"><div class="avatar" style="background:#0d9488;color:#fff;font-size:11px">KP</div><div><div class="fw6">Kavita Patel</div><div class="fs11 c-hint">kavita@loanflow.in</div></div></div></td><td>Sales Executive</td><td>18</td><td><span class="fw6">38/48</span></td><td><span class="badge b-green">Present</span></td><td><span class="fw7" style="color:var(--teal)">78%</span></td><td>₹32,000</td><td><span class="badge b-green">Active</span></td></tr>
+        <tr><td><div class="flex flex-c gap10"><div class="avatar" style="background:#d97706;color:#fff;font-size:11px">AK</div><div><div class="fw6">Amit Kumar</div><div class="fs11 c-hint">amit@loanflow.in</div></div></div></td><td>Backend Executive</td><td>15</td><td><span class="fw6 c-warn">29/45</span></td><td><span class="badge b-amber">Late</span></td><td><span class="fw7 c-warn">65%</span></td><td>₹24,000</td><td><span class="badge b-amber">On Leave</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ════ DOCUMENTS ════ -->
+<section id="page-documents" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Document Management</div><div class="sec-sub">LF-2024-089 · Rajesh Sharma</div></div>
+    <button class="hbtn hbtn-primary"><i class="ti ti-upload"></i>Upload Document</button>
+  </div>
+  <div class="card-sm mb16" style="background:var(--accent-light);border-color:var(--accent-muted)">
+    <div class="flex flex-c gap10" style="color:var(--accent)"><i class="ti ti-robot" style="font-size:22px"></i><div><div class="fw6 fs13">AI Document Checklist</div><div class="fs12">Auto-validates required docs based on loan type and profile</div></div><button class="hbtn hbtn-primary" style="margin-left:auto" onclick="aiDocCheck()">Run AI Check <i class="ti ti-sparkles"></i></button></div>
+    <div id="ai-doc-result" class="ai-output" style="display:none"></div>
+  </div>
+  <div class="g3">
+    <div class="card"><div class="fw6 mb12 fs11 c-muted" style="text-transform:uppercase;letter-spacing:.6px">KYC Documents</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-file-text c-accent"></i>Aadhaar Card</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-file-text c-accent"></i>PAN Card</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-file-text c-accent"></i>Photograph</span><span class="badge b-amber">Pending</span></div>
+      </div>
+    </div>
+    <div class="card"><div class="fw6 mb12 fs11 c-muted" style="text-transform:uppercase;letter-spacing:.6px">Financial Documents</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-report-money c-success"></i>Bank Statement (6m)</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-report-money c-success"></i>Salary Slips (3m)</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-report-money c-success"></i>ITR (3 Years)</span><span class="badge b-red">Missing</span></div>
+      </div>
+    </div>
+    <div class="card"><div class="fw6 mb12 fs11 c-muted" style="text-transform:uppercase;letter-spacing:.6px">Property Documents</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-home c-purple"></i>Registry</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-home c-purple"></i>Khasra Khatoni</span><span class="badge b-amber">Pending</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-home c-purple"></i>GPA</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-home c-purple"></i>Electricity Bill</span><span class="badge b-green">✓ Uploaded</span></div>
+        <div class="flex flex-c" style="justify-content:space-between"><span class="fs13 flex flex-c gap6"><i class="ti ti-home c-purple"></i>Rent Agreement</span><span class="badge b-gray">N/A</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ AI ASSISTANT ════ -->
+<section id="page-ai" class="page">
+  <div class="sec-hd"><div><div class="sec-title" style="font-size:18px">AI Assistant</div><div class="sec-sub">Powered by Claude — intelligent loan processing support</div></div></div>
+  <div class="g2 mb16">
+    <div class="card" style="border-color:var(--accent-muted);background:var(--accent-light)">
+      <div class="flex flex-c gap10 mb12"><div style="width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px"><i class="ti ti-sparkles"></i></div><div class="fw7 fs13">Loan Eligibility Summary</div></div>
+      <div class="form-group mb12"><label class="form-label">Customer Name</label><input class="form-input" id="ai-elig-name" placeholder="e.g. Rajesh Sharma"></div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Monthly Income (₹)</label><input class="form-input" id="ai-elig-income" placeholder="e.g. 85000"></div>
+        <div class="form-group"><label class="form-label">Loan Required (₹)</label><input class="form-input" id="ai-elig-loan" placeholder="e.g. 4500000"></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Property Value (₹)</label><input class="form-input" id="ai-elig-propval" placeholder="e.g. 7000000"></div>
+        <div class="form-group"><label class="form-label">Loan Type</label><select class="form-select" id="ai-elig-type"><option>LAP</option><option>Home Loan</option><option>Commercial</option></select></div>
+      </div>
+      <button class="hbtn hbtn-primary" onclick="aiEligibility()"><i class="ti ti-robot"></i>Generate AI Summary</button>
+      <div id="ai-elig-out" class="ai-output" style="display:none;margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="flex flex-c gap10 mb12"><div style="width:36px;height:36px;background:var(--teal);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px"><i class="ti ti-message-circle"></i></div><div class="fw7 fs13">Follow-up Message Generator</div></div>
+      <div class="form-group mb12"><label class="form-label">Customer Name</label><input class="form-input" id="ai-fu-name" placeholder="e.g. Priya Mehta"></div>
+      <div class="form-group mb12"><label class="form-label">Follow-up Reason</label><select class="form-select" id="ai-fu-reason"><option>Document Pending — ITR</option><option>Bank Query Response Pending</option><option>Valuation Follow-up</option><option>Sanction Follow-up</option><option>Disbursal Documents</option><option>Legal Queries Pending</option></select></div>
+      <div class="form-group mb12"><label class="form-label">File ID</label><input class="form-input" id="ai-fu-file" placeholder="e.g. LF-2024-091"></div>
+      <button class="hbtn hbtn-primary" style="background:var(--teal);border-color:var(--teal)" onclick="aiFollowup()"><i class="ti ti-robot"></i>Generate Message</button>
+      <div id="ai-fu-out" class="ai-output" style="display:none;margin-top:12px"></div>
+    </div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="flex flex-c gap10 mb12"><div style="width:36px;height:36px;background:var(--purple);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px"><i class="ti ti-report-analytics"></i></div><div class="fw7 fs13">AI Daily Report Generator</div></div>
+      <div class="form-group mb12"><label class="form-label">Date</label><input class="form-input" type="date" id="ai-rep-date" value="2025-06-07"></div>
+      <div class="form-group mb12"><label class="form-label">Summary Points to Include</label><textarea class="form-textarea" id="ai-rep-notes" placeholder="e.g. 3 new leads, 1 file disbursed, SBI query on LF-089 resolved..."></textarea></div>
+      <button class="hbtn hbtn-primary" style="background:var(--purple);border-color:var(--purple)" onclick="aiDailyReport()"><i class="ti ti-robot"></i>Generate Report</button>
+      <div id="ai-rep-out" class="ai-output" style="display:none;margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <div class="flex flex-c gap10 mb12"><div style="width:36px;height:36px;background:var(--danger);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px"><i class="ti ti-alert-triangle"></i></div><div class="fw7 fs13">AI Query Resolution Suggestions</div></div>
+      <div class="form-group mb12"><label class="form-label">Bank Query / Issue Description</label><textarea class="form-textarea" id="ai-qr-issue" placeholder="e.g. Bank has raised a query on income stability — customer is self-employed with 2 years ITR available..."></textarea></div>
+      <div class="form-group mb12"><label class="form-label">Bank Name</label><select class="form-select" id="ai-qr-bank"><option>SBI</option><option>HDFC</option><option>ICICI</option><option>Axis Bank</option><option>PNB</option></select></div>
+      <button class="hbtn hbtn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="aiQueryResolve()"><i class="ti ti-robot"></i>Get AI Suggestions</button>
+      <div id="ai-qr-out" class="ai-output" style="display:none;margin-top:12px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex flex-c gap10 mb16"><div style="width:36px;height:36px;background:var(--warning);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px"><i class="ti ti-clock-exclamation"></i></div><div class="fw7 fs13">AI Pending File Analysis</div><button class="hbtn hbtn-primary" style="margin-left:auto;background:var(--warning);border-color:var(--warning)" onclick="aiPendingAnalysis()"><i class="ti ti-robot"></i>Analyse All Pending Files</button></div>
+    <div id="ai-pend-out" class="ai-output" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ════ REPORTS ════ -->
+<section id="page-reports" class="page">
+  <div class="sec-hd">
+    <div><div class="sec-title" style="font-size:18px">Reports & Analytics</div></div>
+    <div class="flex gap10"><select class="form-select" style="width:auto;font-size:12px"><option>June 2025</option><option>May 2025</option><option>Q1 FY25</option><option>FY 2024-25</option></select><button class="hbtn hbtn-primary"><i class="ti ti-download"></i>Export PDF</button></div>
+  </div>
+  <div class="g4 mb20">
+    <div class="card-sm" style="cursor:pointer;transition:.2s;border-color:var(--accent)" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow=''"><i class="ti ti-calendar-stats c-accent" style="font-size:26px"></i><div class="fw6 fs13 mt8">Daily Report</div><div class="fs11 c-muted">Today's activity</div></div>
+    <div class="card-sm" style="cursor:pointer;transition:.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow=''"><i class="ti ti-chart-line c-success" style="font-size:26px"></i><div class="fw6 fs13 mt8">Monthly Business</div><div class="fs11 c-muted">June 2025 overview</div></div>
+    <div class="card-sm" style="cursor:pointer;transition:.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow=''"><i class="ti ti-building c-warn" style="font-size:26px"></i><div class="fw6 fs13 mt8">Bank-wise Cases</div><div class="fs11 c-muted">Per bank analysis</div></div>
+    <div class="card-sm" style="cursor:pointer;transition:.2s" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow=''"><i class="ti ti-coin-rupee c-purple" style="font-size:26px"></i><div class="fw6 fs13 mt8">Commission Report</div><div class="fs11 c-muted">Earnings breakdown</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="sec-hd"><div class="sec-title fs13 fw7">Bank-wise Distribution</div></div><div style="position:relative;height:240px"><canvas id="rpt-bank" role="img" aria-label="Bank-wise case distribution donut chart">SBI 9, HDFC 6, ICICI 11, Axis 7, PNB 4.</canvas></div></div>
+    <div class="card"><div class="sec-hd"><div class="sec-title fs13 fw7">Employee Targets vs Achievement</div></div><div style="position:relative;height:240px"><canvas id="rpt-emp" role="img" aria-label="Employee performance bar chart">Performance scores for each team member.</canvas></div></div>
+  </div>
+</section>
+
+<!-- ════ SETTINGS ════ -->
+<section id="page-settings" class="page">
+  <div class="sec-hd"><div><div class="sec-title" style="font-size:18px">Settings</div></div></div>
+  <div class="g2">
+    <div class="card"><div class="fw7 fs15 mb16">Company Profile</div>
+      <div class="form-group mb12"><label class="form-label">Company Name</label><input class="form-input" value="LoanFlow Consultancy Pvt. Ltd."></div>
+      <div class="form-group mb12"><label class="form-label">GSTIN</label><input class="form-input" value="07AABCL1234F1Z5"></div>
+      <div class="form-group mb12"><label class="form-label">Registered Address</label><input class="form-input" value="Plot 14, Sector 44, Gurgaon — 122003"></div>
+      <div class="form-group mb16"><label class="form-label">Phone</label><input class="form-input" value="+91 98765 43210"></div>
+      <button class="hbtn hbtn-primary">Save Changes</button>
+    </div>
+    <div class="card"><div class="fw7 fs15 mb16">User Roles & Permissions</div>
+      <table><thead><tr><th>Role</th><th>Users</th><th>Access</th></tr></thead><tbody>
+        <tr><td>Admin</td><td>2</td><td><span class="badge b-red">Full Access</span></td></tr>
+        <tr><td>Team Leader</td><td>3</td><td><span class="badge b-amber">Monitor & Assign</span></td></tr>
+        <tr><td>Loan Manager</td><td>5</td><td><span class="badge b-blue">Manage Files</span></td></tr>
+        <tr><td>Sales Executive</td><td>8</td><td><span class="badge b-gray">Leads + Docs</span></td></tr>
+        <tr><td>Backend Exec</td><td>4</td><td><span class="badge b-purple">Processing</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ MOBILE NAV ══ -->
+<nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="mob-items">
+    <div class="mob-item active" onclick="go('dashboard')"><i class="ti ti-layout-dashboard"></i>Home</div>
+    <div class="mob-item" onclick="go('leads')"><i class="ti ti-users"></i>Leads</div>
+    <div class="mob-item" onclick="go('files')"><i class="ti ti-folder"></i>Files</div>
+    <div class="mob-item" onclick="go('tasks')"><i class="ti ti-checkbox"></i>Tasks</div>
+    <div class="mob-item" onclick="go('reports')"><i class="ti ti-chart-bar"></i>Reports</div>
+    <div class="mob-item" onclick="go('ai')"><i class="ti ti-robot"></i>AI</div>
+  </div>
+</nav>
+
+<!-- ══ OVERLAYS ══ -->
+<!-- Lead Modal -->
+<div class="overlay" id="leadOverlay" onclick="if(event.target===this)closeOverlay('leadOverlay')">
+  <div class="modal" style="width:700px">
+    <div class="modal-head"><div class="modal-title"><i class="ti ti-user-plus c-accent"></i> Add New Lead</div><button class="hbtn" onclick="closeOverlay('leadOverlay')" style="padding:6px 10px"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Customer Name *</label><input class="form-input" placeholder="Full name"></div>
+        <div class="form-group"><label class="form-label">Mobile Number *</label><input class="form-input" placeholder="10-digit mobile"></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Alternate Number</label><input class="form-input" placeholder="Alternate mobile"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" placeholder="email@example.com"></div>
+      </div>
+      <div class="form-group mb12"><label class="form-label">Property Address</label><input class="form-input" placeholder="Full property address including area, city, pincode"></div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Loan Type *</label><select class="form-select"><option>LAP</option><option>Home Loan</option><option>Commercial Loan</option><option>Plot Loan</option></select></div>
+        <div class="form-group"><label class="form-label">Loan Amount Required</label><input class="form-input" placeholder="₹ Amount"></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Property Value (Approx.)</label><input class="form-input" placeholder="₹ Value"></div>
+        <div class="form-group"><label class="form-label">Occupation</label><select class="form-select"><option>Salaried</option><option>Self-Employed (Business)</option><option>Self-Employed (Professional)</option></select></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Monthly Income (Net)</label><input class="form-input" placeholder="₹ Net income per month"></div>
+        <div class="form-group"><label class="form-label">Lead Source</label><select class="form-select"><option>Online Portal</option><option>Referral</option><option>Walk-in</option><option>IVR / Call</option><option>Social Media</option><option>DSA Partner</option></select></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Assign To</label><select class="form-select"><option>Rahul Singh</option><option>Kavita Patel</option><option>Amit Kumar</option><option>Neha Gupta</option></select></div>
+        <div class="form-group"><label class="form-label">Lead Status</label><select class="form-select"><option>New Lead</option><option>Contacted</option><option>Meeting Fixed</option></select></div>
+      </div>
+      <div class="form-group mb16"><label class="form-label">Remarks / Notes</label><textarea class="form-textarea" placeholder="Any additional notes about this lead..."></textarea></div>
+      <div class="flex gap10" style="justify-content:flex-end">
+        <button class="hbtn" onclick="closeOverlay('leadOverlay')">Cancel</button>
+        <button class="hbtn hbtn-primary" onclick="closeOverlay('leadOverlay')"><i class="ti ti-check"></i>Save Lead</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- File Modal -->
+<div class="overlay" id="fileOverlay" onclick="if(event.target===this)closeOverlay('fileOverlay')">
+  <div class="modal" style="width:720px">
+    <div class="modal-head"><div class="modal-title"><i class="ti ti-folder-plus c-accent"></i> Create Loan File <span class="badge b-blue" style="margin-left:8px">Auto ID: LF-2025-<span id="file-id-gen">108</span></span></div><button class="hbtn" onclick="closeOverlay('fileOverlay')" style="padding:6px 10px"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="fw6 fs12 c-muted mb8" style="text-transform:uppercase;letter-spacing:.6px">Primary Applicant</div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Customer Name *</label><input class="form-input" placeholder="Full name"></div>
+        <div class="form-group"><label class="form-label">Mobile *</label><input class="form-input" placeholder="Mobile number"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="fw6 fs12 c-muted mb8" style="text-transform:uppercase;letter-spacing:.6px">Loan Details</div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Bank Name</label><select class="form-select"><option>SBI</option><option>HDFC</option><option>ICICI</option><option>Axis Bank</option><option>PNB</option></select></div>
+        <div class="form-group"><label class="form-label">Banker Name</label><input class="form-input" placeholder="Assigned banker"></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Loan Amount (₹)</label><input class="form-input" placeholder="Sanctioned amount"></div>
+        <div class="form-group"><label class="form-label">Interest Rate (%)</label><input class="form-input" placeholder="e.g. 8.75"></div>
+      </div>
+      <div class="form-row mb16">
+        <div class="form-group"><label class="form-label">Tenure (Months)</label><input class="form-input" placeholder="e.g. 240"></div>
+        <div class="form-group"><label class="form-label">Processing Fee (₹)</label><input class="form-input" placeholder="e.g. 15000"></div>
+      </div>
+      <div class="flex gap10" style="justify-content:flex-end">
+        <button class="hbtn" onclick="closeOverlay('fileOverlay')">Cancel</button>
+        <button class="hbtn hbtn-primary" onclick="closeOverlay('fileOverlay')"><i class="ti ti-check"></i>Create File</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Modal -->
+<div class="overlay" id="taskOverlay" onclick="if(event.target===this)closeOverlay('taskOverlay')">
+  <div class="modal" style="width:500px">
+    <div class="modal-head"><div class="modal-title"><i class="ti ti-checkbox c-accent"></i> Add Task</div><button class="hbtn" onclick="closeOverlay('taskOverlay')" style="padding:6px 10px"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group mb12"><label class="form-label">Task Title *</label><input class="form-input" placeholder="What needs to be done?"></div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-select"><option>Urgent</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+        <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date"></div>
+      </div>
+      <div class="form-row mb12">
+        <div class="form-group"><label class="form-label">Assign To</label><select class="form-select"><option>Rahul Singh</option><option>Kavita Patel</option><option>Amit Kumar</option><option>Neha Gupta</option></select></div>
+        <div class="form-group"><label class="form-label">Related File</label><input class="form-input" placeholder="e.g. LF-2024-089"></div>
+      </div>
+      <div class="form-group mb12"><label class="form-label">Internal Notes</label><textarea class="form-textarea" placeholder="Any notes or context..."></textarea></div>
+      <div class="flex gap10" style="justify-content:flex-end">
+        <button class="hbtn" onclick="closeOverlay('taskOverlay')">Cancel</button>
+        <button class="hbtn hbtn-primary" onclick="closeOverlay('taskOverlay')"><i class="ti ti-check"></i>Save Task</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications -->
+<div class="overlay" id="notifOverlay" onclick="if(event.target===this)closeOverlay('notifOverlay')">
+  <div class="modal" style="width:420px;max-height:80vh">
+    <div class="modal-head"><div class="modal-title"><i class="ti ti-bell c-accent"></i> Reminders & Alerts</div><button class="hbtn" onclick="closeOverlay('notifOverlay')" style="padding:6px 10px"><i class="ti ti-x"></i></button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <div class="card-sm" style="border-left:3px solid var(--danger);border-radius:0 9px 9px 0"><div class="fw6 fs13 c-danger">⚠ Bank Query Overdue — 5 Days</div><div class="fs12 c-muted mt8">LF-2024-091 · Priya Mehta · HDFC · Respond by today</div></div>
+      <div class="card-sm" style="border-left:3px solid var(--warning);border-radius:0 9px 9px 0"><div class="fw6 fs13 c-warn">Valuation Pending</div><div class="fs12 c-muted mt8">LF-2024-089 · Rajesh Sharma · 3 days since initiation</div></div>
+      <div class="card-sm" style="border-left:3px solid var(--accent);border-radius:0 9px 9px 0"><div class="fw6 fs13 c-accent">Document Reminder</div><div class="fs12 c-muted mt8">LF-2024-101 · Vikram Singh · ITR documents not received</div></div>
+      <div class="card-sm" style="border-left:3px solid var(--success);border-radius:0 9px 9px 0"><div class="fw6 fs13 c-success">Disbursal Follow-up</div><div class="fs12 c-muted mt8">LF-2024-095 · Sunita Rao · Disbursal docs to collect today</div></div>
+      <div class="card-sm" style="border-left:3px solid var(--purple);border-radius:0 9px 9px 0"><div class="fw6 fs13 c-purple">Legal Pending — 8 Days</div><div class="fs12 c-muted mt8">LF-2024-087 · Mohan Lal · Legal file sent, no response yet</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Navigation ──
+const pageTitles={dashboard:'Dashboard',leads:'Lead Management',files:'Loan Files',workflow:'Workflow Tracker',tasks:'Task Management',bankers:'Banker Management',employees:'Employee Tracking',documents:'Documents',ai:'AI Assistant',reports:'Reports',settings:'Settings'};
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.mob-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg)pg.classList.add('active');
+  document.getElementById('page-title').textContent=pageTitles[page]||page;
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.textContent.trim().toLowerCase().startsWith(pageTitles[page].slice(0,5).toLowerCase()))n.classList.add('active');});
+  document.querySelectorAll('.mob-item').forEach(m=>{if(m.textContent.trim().toLowerCase().includes(page.slice(0,4)))m.classList.add('active');});
+  window.scrollTo(0,0);
+  if(page==='workflow'){buildWF();}
+  if(page==='reports'){setTimeout(buildReportCharts,50);}
+  if(page==='dashboard'){setTimeout(buildDashCharts,50);}
+}
+function chipSel(el,groupId){document.querySelectorAll('#'+groupId+' .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');}
+function openOverlay(id){document.getElementById(id).classList.add('open');}
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+
+// ── Sidebar / Theme ──
+let sideOpen=true;
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const mn=document.getElementById('main');
+  const hd=document.getElementById('header');
+  sideOpen=!sideOpen;
+  sb.style.transform=sideOpen?'':'translateX(-260px)';
+}
+let dark=false;
+function toggleTheme(){
+  dark=!dark;
+  document.body.setAttribute('data-theme',dark?'dark':'light');
+  document.getElementById('theme-icon').className=dark?'ti ti-sun':'ti ti-moon';
+  rebuildCharts();
+}
+
+// ── Workflow ──
+const STAGES=['Lead Generated','Customer Meeting','Document Collection','File Login in Bank','Bank Login Confirmed','Valuation Initiated','Technical Verification Initiated','Technical Approved','Legal File Sent','Legal Queries Raised','Legal Queries Resolved','Rental Assessment','LIP Verification','Credit Underwriting','Bank Queries','Bank Query Resolved','Case Recommended','Loan Sanction','Sanction Letter Uploaded','Disbursal Documents Collection','Mortgage Creation','Final Disbursal','Commission Received','Case Closed'];
+const CUR=8,DELAYED=[6,10];
+const EMPLOYEES=['Rahul Singh','Kavita Patel','Rahul Singh','Amit Kumar','Amit Kumar','Neha Gupta','Neha Gupta','Rahul Singh','Amit Kumar','Kavita Patel','Amit Kumar','Rahul Singh','Kavita Patel','Rahul Singh','Kavita Patel','Rahul Singh','Rahul Singh','Rahul Singh','Neha Gupta','Neha Gupta','Amit Kumar','Rahul Singh','Neha Gupta','Rahul Singh'];
+
+function buildWF(){
+  const g=document.getElementById('wf-grid');
+  if(!g||g.children.length===STAGES.length)return;
+  g.innerHTML=STAGES.map((s,i)=>{
+    const n=i+1;
+    let cls='';
+    let statusHtml='<span class="badge b-gray fs11">Pending</span>';
+    if(DELAYED.includes(n)){cls='delayed';statusHtml='<span class="badge b-red fs11">Delayed</span>';}
+    else if(n<CUR){cls='done';statusHtml='<span class="badge b-green fs11">Done</span>';}
+    else if(n===CUR){cls='active-stage';statusHtml='<span class="badge b-blue fs11">Active</span>';}
+    return `<div class="wf-card ${cls}" onclick="showStageDetail(${n})">
+      <div class="wf-num">STAGE ${n}</div>
+      <div class="wf-name">${s}</div>
+      <div class="mt8">${statusHtml}</div>
+      <div class="fs11 c-hint mt4">${EMPLOYEES[i]}</div>
+      ${DELAYED.includes(n)?'<div class="fs11 c-danger mt2">+3 delay days</div>':''}
+    </div>`;
+  }).join('');
+}
+
+let kanbanMode=false;
+function wfToggle(){
+  kanbanMode=!kanbanMode;
+  document.getElementById('wf-timeline').style.display=kanbanMode?'none':'block';
+  document.getElementById('wf-kanban').style.display=kanbanMode?'block':'none';
+  document.getElementById('wf-toggle').innerHTML=kanbanMode?'<i class="ti ti-timeline"></i>Timeline View':'<i class="ti ti-columns"></i>Kanban View';
+  if(kanbanMode)buildKanban();
+}
+
+function buildKanban(){
+  const cols=[
+    {t:'Pending',col:'var(--text3)',items:[{n:'Vikram Singh',id:'LF-101',s:4},{n:'Mohan Lal',id:'LF-087',s:3}]},
+    {t:'In Progress',col:'var(--accent)',items:[{n:'Rajesh Sharma',id:'LF-089',s:8},{n:'Priya Mehta',id:'LF-091',s:15}]},
+    {t:'Delayed',col:'var(--danger)',items:[{n:'Suresh Nair',id:'LF-082',s:10}]},
+    {t:'Sanctioned',col:'var(--purple)',items:[{n:'Sunita Rao',id:'LF-095',s:18}]},
+    {t:'Disbursed',col:'var(--success)',items:[{n:'Anil Verma',id:'LF-078',s:22}]},
+  ];
+  document.getElementById('kb-board').innerHTML=cols.map(c=>`
+    <div class="kboard">
+      <div class="kb-head" style="color:${c.col}">${c.t}<span class="badge b-gray">${c.items.length}</span></div>
+      ${c.items.map(x=>`<div class="kcard"><div class="kcard-name">${x.n}</div><div class="kcard-meta">${x.id} · Stage ${x.s}</div></div>`).join('')}
+    </div>`).join('');
+}
+
+function showStageDetail(n){
+  const s=STAGES[n-1];
+  const isDone=n<CUR,isActive=n===CUR,isDelay=DELAYED.includes(n);
+  const status=isDelay?'Delayed':isDone?'Completed':isActive?'In Progress':'Pending';
+  alert(`Stage ${n}: ${s}\n\nStatus: ${status}\nResponsible: ${EMPLOYEES[n-1]}\nDelay: ${isDelay?'+3 days':'None'}\n\nClick Update Stage to change status.`);
+}
+
+// ── Charts ──
+let dC1,dC2,rC1,rC2;
+function getC(){return{a:dark?'#3b82f6':'#2563eb',s:'#16a34a',w:'#b45309',d:'#dc2626',p:'#7c3aed',t:'#0d9488',border:dark?'#1e2d45':'#e2e8f0',text:dark?'#94a3b8':'#475569'};}
+
+function buildDashCharts(){
+  const c=getC();
+  const el1=document.getElementById('dashChart1');
+  const el2=document.getElementById('dashChart2');
+  if(!el1||!el2)return;
+  if(dC1)dC1.destroy();
+  if(dC2)dC2.destroy();
+  dC1=new Chart(el1,{type:'bar',data:{labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Sanctioned',data:[2.1,3.4,1.8,4.2,3.1,5.0,2.8,3.6,4.1,2.9,3.8,4.5],backgroundColor:c.a+'40',borderColor:c.a,borderWidth:2},{label:'Disbursed',data:[1.2,2.1,1.4,3.0,2.4,3.8,2.1,2.9,3.2,2.1,3.0,3.6],backgroundColor:c.s+'40',borderColor:c.s,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:c.text,font:{size:11}},grid:{color:c.border+'80'}},y:{ticks:{color:c.text,font:{size:11},callback:v=>'₹'+v+'Cr'},grid:{color:c.border+'80'}}}}});
+  dC2=new Chart(el2,{type:'bar',data:{labels:['Leads','Contacted','Docs Collected','File Login','Sanctioned','Disbursed'],datasets:[{label:'Files',data:[284,198,142,97,43,29],backgroundColor:[c.a+'80',c.a+'70',c.a+'60',c.a+'50',c.s+'80',c.s],borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:c.text,font:{size:11}},grid:{color:c.border+'80'}},y:{ticks:{color:c.text,font:{size:11}},grid:{display:false}}}}});
+}
+
+function buildReportCharts(){
+  const c=getC();
+  const el1=document.getElementById('rpt-bank'),el2=document.getElementById('rpt-emp');
+  if(!el1||!el2)return;
+  if(rC1)rC1.destroy();if(rC2)rC2.destroy();
+  rC1=new Chart(el1,{type:'doughnut',data:{labels:['SBI','HDFC','ICICI','Axis','PNB','Others'],datasets:[{data:[9,6,11,7,4,5],backgroundColor:[c.a,c.d,'#f97316',c.p,c.t,'#64748b'],borderWidth:2,borderColor:dark?'#131929':'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:c.text,font:{size:12},padding:10,boxWidth:12}}}}});
+  rC2=new Chart(el2,{type:'bar',data:{labels:['Rahul S','Neha G','Kavita P','Amit K'],datasets:[{label:'Target %',data:[100,100,100,100],backgroundColor:c.border+'50',borderRadius:4},{label:'Achieved %',data:[92,88,78,65],backgroundColor:[c.s,c.a,c.t,c.w],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:c.text},grid:{display:false}},y:{max:100,ticks:{color:c.text,callback:v=>v+'%'},grid:{color:c.border+'80'}}}}});
+}
+
+function rebuildCharts(){buildDashCharts();if(document.getElementById('page-reports').classList.contains('active'))buildReportCharts();}
+
+// ── Search ──
+function doSearch(q){
+  if(!q||q.length<2)return;
+  const lc=q.toLowerCase();
+  document.querySelectorAll('#leads-tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(lc)?'':'none';});
+}
+
+// ── AI Features ──
+async function callAI(prompt,outputEl,loadingMsg){
+  outputEl.style.display='block';
+  outputEl.className='ai-output ai-typing';
+  outputEl.textContent=loadingMsg||'Thinking…';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content?.map(b=>b.text||'').join('')||'No response.';
+    outputEl.className='ai-output';
+    typeWriter(outputEl,text);
+  }catch(e){
+    outputEl.className='ai-output';
+    outputEl.textContent='⚠ Error: '+e.message;
+  }
+}
+
+function typeWriter(el,text){
+  el.textContent='';
+  let i=0;
+  const t=setInterval(()=>{
+    el.textContent+=text[i]||'';
+    i++;
+    if(i>=text.length)clearInterval(t);
+  },8);
+}
+
+function aiEligibility(){
+  const name=document.getElementById('ai-elig-name').value||'Applicant';
+  const income=document.getElementById('ai-elig-income').value||'85000';
+  const loan=document.getElementById('ai-elig-loan').value||'4500000';
+  const propval=document.getElementById('ai-elig-propval').value||'7000000';
+  const type=document.getElementById('ai-elig-type').value;
+  callAI(`You are an expert Indian loan advisor for a property loan consultancy. Provide a concise loan eligibility summary for:\n\nName: ${name}\nMonthly Income: ₹${income}\nLoan Type: ${type}\nLoan Required: ₹${loan}\nProperty Value: ₹${propval}\n\nInclude: LTV ratio assessment, EMI estimation, eligibility verdict, recommended banks, and any concerns. Format clearly with sections. Keep it practical and professional.`,document.getElementById('ai-elig-out'),'Analysing eligibility…');
+}
+
+function aiFollowup(){
+  const name=document.getElementById('ai-fu-name').value||'Customer';
+  const reason=document.getElementById('ai-fu-reason').value;
+  const file=document.getElementById('ai-fu-file').value||'LF-XXXX';
+  callAI(`You are a professional loan executive in India. Write a polite, professional WhatsApp/SMS follow-up message in English for:\n\nCustomer: ${name}\nReason: ${reason}\nFile ID: ${file}\n\nThe message should be warm, clear, and encourage the customer to act promptly. Keep it concise (under 100 words). Do not use aggressive language.`,document.getElementById('ai-fu-out'),'Drafting message…');
+}
+
+function aiDailyReport(){
+  const date=document.getElementById('ai-rep-date').value||'2025-06-07';
+  const notes=document.getElementById('ai-rep-notes').value||'Normal business day';
+  callAI(`You are a CRM analyst for LoanFlow Pro, a property loan consultancy. Generate a professional daily business report for ${date}.\n\nTeam notes: ${notes}\n\nPortfolio context: 97 active files, 43 sanctioned cases, 29 disbursed. 4 team members.\n\nFormat as a clean daily report with sections: Summary, Key Activities, Pending Actions, Tomorrow's Priorities. Professional tone.`,document.getElementById('ai-rep-out'),'Generating report…');
+}
+
+function aiQueryResolve(){
+  const issue=document.getElementById('ai-qr-issue').value||'Bank raised income stability query';
+  const bank=document.getElementById('ai-qr-bank').value;
+  callAI(`You are an expert Indian property loan consultant. A ${bank} banker has raised the following query:\n\n"${issue}"\n\nProvide 3-4 specific, actionable resolution strategies to address this query. Include what documents to submit, how to respond to the banker, and any precedents or policy points that could help. Be specific and practical.`,document.getElementById('ai-qr-out'),'Generating suggestions…');
+}
+
+function aiPendingAnalysis(){
+  callAI(`You are an AI loan portfolio manager for an Indian property loan consultancy. Analyse these pending cases and prioritise actions:\n\n1. LF-2024-089 (Rajesh Sharma, LAP ₹45L, SBI) — Stage 8, Technical Approved, valuation initiated 3 days ago, no update\n2. LF-2024-091 (Priya Mehta, Home Loan ₹72L, HDFC) — Stage 15, Bank Query pending 5 days, overdue\n3. LF-2024-101 (Vikram Singh, LAP ₹85L, PNB) — Stage 4, File login 12 days ago, ITR missing\n\nRank by urgency, explain risk of delay for each, and recommend immediate next actions. Format as a structured analysis report.`,document.getElementById('ai-pend-out'),'Analysing pending files…');
+}
+
+function aiDocCheck(){
+  const el=document.getElementById('ai-doc-result');
+  callAI(`You are a document compliance officer for Indian property loans. For a LAP (Loan Against Property) case for Rajesh Sharma (salaried employee, ₹85,000/month income, property value ₹70L in Delhi):\n\nUploaded: Aadhaar, PAN, Bank Statement, Salary Slips, Registry, GPA, Electricity Bill\nMissing: ITR (3 years), Photograph, Khasra Khatoni\n\nProvide: (1) Checklist status, (2) Risk of missing docs, (3) Priority to collect, (4) Any additional docs recommended for SBI LAP. Be concise and structured.`,el,'Running AI document check…');
+}
+
+// ── Init ──
+window.addEventListener('load',()=>{
+  buildDashCharts();
+  buildWF();
+  if(window.innerWidth<768){document.getElementById('menu-btn').style.display='inline-flex';}
+});
+
+// File ID auto-increment
+document.getElementById('file-id-gen') && setInterval(()=>{},1000);
+</script>
+</body>
+</html>
